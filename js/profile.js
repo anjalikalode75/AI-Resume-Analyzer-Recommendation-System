@@ -2,7 +2,7 @@
 // Profile Page Logic
 // ============================================================
 
-import { auth, db, storage, toast } from "./firebase-config.js";
+import { auth, db, toast } from "./firebase-config.js";
 import {
   onAuthStateChanged,
   signOut,
@@ -18,11 +18,6 @@ import {
   orderBy,
   getDocs,
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 let user = null;
 
@@ -74,23 +69,6 @@ document.getElementById("changePwdBtn")?.addEventListener("click", async () => {
   }
 });
 
-// Profile picture upload
-document.getElementById("picUpload")?.addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 2 * 1024 * 1024) return toast("Image must be under 2MB", "error");
-  try {
-    const r = ref(storage, `avatars/${user.uid}/${Date.now()}_${file.name}`);
-    await uploadBytes(r, file);
-    const url = await getDownloadURL(r);
-    await updateProfile(user, { photoURL: url });
-    await setDoc(doc(db, "users", user.uid), { photoURL: url }, { merge: true });
-    document.getElementById("profilePic").src = url;
-    toast("Profile picture updated!", "success");
-  } catch (err) {
-    toast(err.message, "error");
-  }
-});
 
 // Load user's resumes
 async function loadUserResumes() {
